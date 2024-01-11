@@ -53,9 +53,7 @@ struct HomeView: View {
                 }
             }
         }
-        .task {
-            coinViewModel.fetchMarket()
-        }
+       
     }
 }
 

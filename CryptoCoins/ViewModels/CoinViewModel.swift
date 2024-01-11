@@ -28,7 +28,7 @@ class CoinViewModel: ObservableObject {
         Task{
             //   fetchCoins("bitcoin")
             //   await alaFetch()
-            //   fetchMarket()
+              await fetchMarket()
         }
         // fetchCoins()
     }
@@ -42,20 +42,28 @@ class CoinViewModel: ObservableObject {
         }
     }
     
-    func fetchMarket(){
-        service.fetchCoinMarket(page: 1, limit: 10) { result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let coins):
-                    
-                    self.coins = coins
-                case .failure(let error):
-                    self.errMsg = error.description
-                    
-                }
+    func fetchMarket() async {
+            do{
+              let coins =  try await service.getMarket(page: 1, limit: 20)
+                self.coins = coins
+            } catch {
+                self.errMsg = error.localizedDescription
             }
-            
-        }
+        
+        
+        //Completion Handler
+//        service.fetchCoinMarket(page: 1, limit: 10) { [weak self] result in
+//            DispatchQueue.main.async {
+//                switch result {
+//                case .success(let coins):
+//                    self?.coins = coins
+//                case .failure(let error):
+//                    self?.errMsg = error.description
+//
+//                }
+//            }
+//
+//        }
     }
     
     

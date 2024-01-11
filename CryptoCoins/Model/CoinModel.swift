@@ -37,6 +37,41 @@ class CoinService {
     
     static let shared = CoinService()
     
+    func getMarket(page:Int? ,limit:Int? ) async throws -> [CoinsModel] {
+        let limit = limit ?? 10
+       let page = page ?? 1
+        guard let url = URL(string: "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=\(limit)&page=\(page)&sparkline=false&locale=en") else{
+            throw CoinError.requestError(desc: "Request failed")
+        }
+        do{
+        let (data, respose) = try await URLSession.shared.data(from: url)
+            
+            guard let res = respose as? HTTPURLResponse else {
+                throw CoinError.requestError(desc: "Request failed")
+            }
+            
+            if res.statusCode != 200 {
+                throw CoinError.invalidStatus(code: res.statusCode)
+            }
+                let coins = try? JSONDecoder().decode([CoinsModel].self, from: data)
+            guard let coins = coins else{
+                throw CoinError.jsonParseError
+            }
+            return coins
+          
+        } catch {
+            throw CoinError.unknownError(error: error)
+        }
+        
+    
+            
+        
+    }
+  
+    
+}
+
+extension CoinService {
     // MARK: - Fetch Market Coins
     func fetchCoinMarket(page:Int? ,limit:Int? ,completion: @escaping (Result<[CoinsModel], CoinError>)->()) {
         let limit = limit ?? 10
@@ -108,7 +143,6 @@ class CoinService {
         }.resume()
         
     }
-    
 }
 
 enum CoinError: Error {
